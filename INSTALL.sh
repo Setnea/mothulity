@@ -1,9 +1,5 @@
 #!/bin/bash
 
-set -o errexit
-set -o pipefail
-set -o nounset
-
 _db_answer=''
 _path_export=''
 
@@ -51,28 +47,23 @@ download_database() {
     1)
     ./mothulity_dbaser.py "${2}" --unite-ITS-02 &&
     ./mothulity.py . --set-align-database-path "${2}/Unite_ITS_02/UNITEv6_sh_99.fasta" --set-taxonomy-database-path "${2}/UNITEv6_sh_99.tax"
-    printf "${_db_choice_msg}"
     ;;
     2)
     ./mothulity_dbaser.py "${2}" --unite-ITS-s-02 &&
     ./mothulity.py . --set-align-database-path "${2}/Unite_ITS_s_02/UNITEv6_sh_97_s.fasta" --set-taxonomy-database-path "${2}/UNITEv6_sh_97_s.tax"
-    printf "${_db_choice_msg}"
     ;;
     3)
     ./mothulity_dbaser.py "${2}" --silva-102 &&
     printf 'Silva-102 is not handled automatically yet.
     It was NOT set as default database.\n'
-    printf "${_db_choice_msg}"
     ;;
     4)
     ./mothulity_dbaser.py "${2}" --silva-119 &&
     ./mothulity.py . --set-align-database-path "${2}/silva.nr_v119.align" --set-taxonomy-database-path "${2}/silva.nr_v119.tax"
-    printf "${_db_choice_msg}"
     ;;
     5)
     ./mothulity_dbaser.py "${2}" --silva-123 &&
     ./mothulity.py . --set-align-database-path "${2}/" --set-taxonomy-database-path "${2}/"
-    printf "${_db_choice_msg}"
     ;;
     6)
     break
@@ -85,7 +76,7 @@ download_database() {
 
 }
 
-### Verify path existance function
+### Verify path existence function
 
 verify_path(){
   # $1 = _db_path
@@ -157,8 +148,6 @@ fi
 
 # Create regular mothulity env from mothulity.yaml
 conda env create --file "${_mothulity_path}/mothulity.yaml" --force
-# Create no-mothur mothulity env from mothulity_sm.yaml
-conda env create --file "${_mothulity_path}/mothulity_sm.yaml" --force
 # Get python interpreter's location from the env
 . activate mothulity
 ENV_PYTHON=$(which python)
@@ -166,14 +155,6 @@ ENV_PYTHON=$(which python)
 for i in "${_mothulity_path}/*.py"; do
   sed -i "s@/usr/bin/env python@${ENV_PYTHON}@g" $i;
 done
-# Run doc tests in all the python files
-#for i in "${_mothulity_path}/*.py"; do
-#  python -m doctest $i;
-#done
-# Go to mothulity directory
-#cd ${_mothulity_path}
-# Run unittests
-#python -m unittest tests.tests;
 
 ### Setting up output path
 if [ ! -z "$_db_answer" ]; then
@@ -205,11 +186,6 @@ if [ ! -z "$_db_type" ]; then
 else
     printf "${_db_choice_msg}"
 fi
-
-
-while read _db_type; do
-  download_database "${_db_type}" "${_db_path}"
-done
 
 printf "${_bye_msg}"
 exit
